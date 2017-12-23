@@ -1,0 +1,865 @@
+swagger: '2.0'
+info:
+  description: |
+    Linker mobile API specification draft
+  version: 0.0.0
+  title: Linker
+host: linker-web.com
+basePath: /api/v1
+tags:
+  - name: profiles
+    description: プロフィール
+  - name: plans
+    description: プラン
+  - name: links
+    description: リンク
+  - name: messages
+    description: メッセージ
+  - name: message_templates
+    description: メッセージテンプレート
+  - name: notifications
+    description: 通知
+  - name: consultant_reviews
+    description: 相談者へのレビュー
+  - name: applicant_reviews
+    description: 応募者へのレビュー
+schemes:
+  - https
+paths:
+  /profiles/me:
+    get:
+      tags:
+        - profiles
+      summary: ログインユーザの情報を取得
+      description: ''
+      operationId: getProfile
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Profile'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      tags:
+        - profiles
+      summary: ログインユーザのプロフィールを更新
+      description: |
+        現在ログイン中のユーザのプロフィールをまとめて更新します。
+      operationId: updateProfile
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: profile
+          required: true
+          schema:
+            $ref: '#/definitions/ProfileForUpdate'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+  /profiles/me/introduction:
+    put:
+      tags:
+        - profiles
+      summary: ログインユーザの紹介文を更新
+      description: |
+        現在ログイン中のユーザのプロフィールのうち、紹介文を更新します。
+      operationId: updateProfileIntroduction
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: introduction
+          required: true
+          schema:
+            $ref: '#/definitions/Introduction'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Introduction'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+  /profiles/me/favorites:
+    put:
+      tags:
+        - profiles
+      summary: ログインユーザの好きなものを更新
+      description: |
+        現在ログイン中のユーザのプロフィールのうち、好きなものを更新します。
+      operationId: updateProfileFavorites
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: favorites
+          required: true
+          schema:
+            $ref: '#/definitions/ItemsForUpdate'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Items'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+  /profiles/me/businessfields:
+    put:
+      tags:
+        - profiles
+      summary: ログインユーザの興味のある業界を更新
+      description: |
+        現在ログイン中のユーザのプロフィールのうち、興味のある業界を更新します。
+      operationId: updateProfileBusinessfields
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: businessfields
+          required: true
+          schema:
+            $ref: '#/definitions/ItemsForUpdate'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Items'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+  /profiles/me/careers:
+    put:
+      tags:
+        - profiles
+      summary: ログインユーザのキャリアを更新
+      description: |
+        現在ログイン中のユーザのプロフィールのうち、キャリアを更新します。
+      operationId: updateProfileCareers
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: careers
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/CareerForUpdate'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Items'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+  '/profiles/{user_id}':
+    get:
+      tags:
+        - profiles
+      summary: 特定ユーザのプロフィールを取得
+      description: |
+        user_idで指定したユーザのプロフィールを取得します。
+      operationId: getProfileById
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: user_id
+          description: プロファイル情報を取得するユーザのID
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Profile'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 該当ユーザなし
+          schema:
+            $ref: '#/definitions/Error'
+  /plans:
+    post:
+      tags:
+        - plans
+      summary: 新しいプランを作成
+      description: |
+        現在ログイン中のユーザで新しいプランを作成します。
+      operationId: createPlan
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: plan
+          required: true
+          schema:
+            $ref: '#/definitions/PlanForCreate'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Plan'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+        - plans
+      summary: プランのリストを取得
+      description: |
+        フィルタリング条件を指定してプランのリストを取得します。
+        typeにmineを指定した場合はログインユーザのプランリスト、
+        usersを指定した場合はconditionsをユーザIDとしてその全てのユーザのプランリスト、
+        wordsを指定した場合はconditionsを検索文字列としてタイトルまたは説明にその全ての文字列を含むプランリストをそれぞれ取得します。
+      operationId: getPlans
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: filter
+          required: true
+          type: string
+          enum:
+            - mine
+            - users
+            - words
+        - in: query
+          name: conditions
+          required: true
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/PagingPlans'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+  '/plans/{plan_id}':
+    get:
+      tags:
+        - plans
+      summary: 特定のプランの情報を取得
+      description: |
+        plan_idで指定したプランの情報を取得します。
+      operationId: getPlanById
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: plan_id
+          description: 情報を取得するプランのID
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Plan'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 該当プランなし
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      tags:
+        - plans
+      summary: 特定のプランの情報を更新
+      description: |
+        plan_idで指定したプランの情報を更新します。
+        更新できるプランは現在ログイン中のユーザのもののみです。
+      operationId: updatePlanById
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: plan_id
+          description: 情報を更新するプランのID
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Plan'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 該当プランなし
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - plans
+      summary: 特定のプランを削除
+      description: |
+        plan_idで指定したプランを削除します。
+        削除できるプランは現在ログイン中のユーザのもののみです。
+      operationId: deletePlanById
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: plan_id
+          description: 削除するプランのID
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Plan'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 該当プランなし
+          schema:
+            $ref: '#/definitions/Error'
+  /links:
+    post:
+      tags:
+        - links
+      summary: ログインユーザの新しいリンク提案を作成
+      description: |
+        現在ログイン中のユーザで新しい提案状態のリンクを作成します。
+      operationId: createLink
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: plan_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Link'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+        - links
+      summary: ログインユーザリンクのリストを取得
+      description: |
+        フィルタリング条件を指定して現在ログイン中のユーザのリンクのリストを取得します。
+        typeにallを指定した場合はログインユーザが応募者または相談者となっている全てのリンクのリスト、
+        activeを指定した場合はアーカイブ状態となっていないリンクのリスト、
+        archivedを指定した場合はアーカイブ状態となっているリンクのリストをそれぞれ取得します。
+      operationId: getLinks
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: filter
+          required: true
+          type: string
+          enum:
+            - all
+            - active
+            - archived
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/PagingLinks'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+  '/links/{link_id}':
+    get:
+      tags:
+        - links
+      summary: リンクの情報を取得
+      description: |
+        現在ログイン中のユーザに関わるリンクの情報を取得します。
+      operationId: getLink
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: link_id
+          description: 情報を取得するリンクのID
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Link'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 該当リンクなし
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - links
+      summary: リンク提案を辞退
+      description: |
+        現在ログイン中のユーザが受けたリンクのうち提案状態のものを辞退します。
+      operationId: deleteLink
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: link_id
+          description: 辞退するリンクのID
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: reason
+          required: true
+          schema:
+            type: string
+            enum:
+              - full_schedule
+              - less_introduction
+              - not_suited
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Link'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 該当リンクなし
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      tags:
+        - links
+      summary: リンク提案を承諾
+      description: |
+        現在ログイン中のユーザが受けたリンクのうち提案状態のものを承諾します。
+      operationId: updateLink
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: link_id
+          description: 承諾するリンクのID
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Link'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 該当リンクなし
+          schema:
+            $ref: '#/definitions/Error'
+  '/links/{link_id}/messages':
+    get:
+      tags:
+        - messages
+      summary: メッセージのリストを取得
+      description: |
+        指定したリンクに紐づくメッセージのリストを取得します。
+      operationId: getMessages
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: link_id
+          description: メッセージを送信するリンクのID
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/PagingMessages'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      tags:
+        - messages
+      summary: 新しいメッセージを送信
+      description: |
+        現在ログイン中のユーザで承諾済みのリンクに対して新しいメッセージを送信します。
+      operationId: createMessage
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: link_id
+          description: メッセージを送信するリンクのID
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: message
+          required: true
+          schema:
+            type: object
+            properties:
+              link_id:
+                type: integer
+              body:
+                type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Message'
+        '400':
+          description: 不正なパラメータ形式
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: 認証失敗
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: 該当リンクなし
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  User:
+    type: object
+    properties:
+      user_id:
+        type: integer
+      name:
+        type: string
+  Introduction:
+    type: object
+    properties:
+      abstract:
+        type: string
+      vision:
+        type: string
+  Career:
+    type: object
+    properties:
+      type:
+        type: string
+        enum:
+          - business
+          - academic
+      organization:
+        type: object
+        required:
+          - id
+          - name
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+          field:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+      position:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+  CareerForUpdate:
+    type: object
+    properties:
+      type:
+        type: string
+        enum:
+          - business
+          - academic
+      organization:
+        type: object
+        required:
+          - id
+        properties:
+          id:
+            type: integer
+          field:
+            type: object
+            properties:
+              id:
+                type: integer
+      position:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+  Items:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+  ItemsForUpdate:
+    type: array
+    items:
+      type: integer
+  Profile:
+    type: object
+    properties:
+      user:
+        $ref: '#/definitions/User'
+      introduction:
+        $ref: '#/definitions/Introduction'
+      favorites:
+        $ref: '#/definitions/Items'
+      businessfields:
+        $ref: '#/definitions/Items'
+      careers:
+        type: array
+        items:
+          $ref: '#/definitions/Career'
+  ProfileForUpdate:
+    type: object
+    properties:
+      introduction:
+        $ref: '#/definitions/Introduction'
+      favorites:
+        $ref: '#/definitions/ItemsForUpdate'
+      businessfields:
+        $ref: '#/definitions/ItemsForUpdate'
+      careers:
+        type: array
+        items:
+          $ref: '#/definitions/CareerForUpdate'
+  Plan:
+    type: object
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      description:
+        type: string
+      place:
+        type: string
+  PlanForCreate:
+    type: object
+    properties:
+      title:
+        type: string
+      description:
+        type: string
+      place:
+        type: string
+  Page:
+    type: object
+    properties:
+      start:
+        type: integer
+      count:
+        type: integer
+  PagingPlans:
+    type: object
+    properties:
+      page:
+        $ref: '#/definitions/Page'
+      plans:
+        type: array
+        items:
+          $ref: '#/definitions/Plan'
+  Link:
+    type: object
+    properties:
+      id:
+        type: integer
+      plan:
+        $ref: '#/definitions/Plan'
+  PagingLinks:
+    type: object
+    properties:
+      page:
+        $ref: '#/definitions/Page'
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Link'
+  Message:
+    type: object
+    properties:
+      id:
+        type: integer
+      user_id:
+        type: integer
+      body:
+        type: string
+  PagingMessages:
+    type: object
+    properties:
+      page:
+        $ref: '#/definitions/Page'
+      messages:
+        type: array
+        items:
+          $ref: '#/definitions/Message'
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string

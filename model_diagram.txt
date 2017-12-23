@@ -1,0 +1,170 @@
+@startuml
+
+title Linker Model Diagram
+
+class User {
+  Int id
+  String faceBookSignature
+  String name
+}
+
+class Plan {
+  Int id
+  Int userId
+  String title
+  String description
+  String place
+  String thumbnailUrl
+  Enum status
+}
+
+User *-down- Plan
+
+class Link {
+  Int id
+  Int planId
+  Int applicantId
+  Enum status
+  enum reason
+}
+
+Link "1" *-right- "2" User
+Link *-right- Plan
+
+class Message {
+  Int id
+  Int linkId
+  Int userId
+  String body
+}
+
+Message "n" -up-* "1" Link
+
+class MessageTemplate {
+  Int userId
+  String title
+  String body
+}
+
+User "1" *-up- "n" MessageTemplate
+
+class Notification {
+  Int userId
+  Int otherUserId
+  Int planId
+  Enum type
+  Bool read
+}
+
+User "1" *-up- "n" Notification
+
+class ConsultantReview {
+  Int linkId
+  String message
+}
+
+Link *-down- ConsultantReview
+
+class ApplicantReview {
+  Int linkId
+  Int personalFeedbackId
+  Int skillFeedbackId
+  Int experienceFeedbackId
+}
+
+Link *-left- ApplicantReview
+
+class PersonalFeedback {
+  Int feedbackId
+}
+
+ApplicantReview *-down- PersonalFeedback
+
+class SkillFeedback {
+  Int feedbackId
+}
+
+ApplicantReview *-down- SkillFeedback
+
+class ExperienceFeedback {
+  Int feedbackId
+}
+
+ApplicantReview *-down- ExperienceFeedback
+
+class Profile {
+  Int id
+  Int userId
+  Enum currentCareerType
+  Int currentCareerId
+  String thumbnailUrl
+}
+
+User *-right- Profile
+
+class ProfileSummary {
+  Int profileId
+  Json summary
+}
+
+ProfileSummary -up-* Profile
+
+class PrivateProfile {
+  Int profileId
+  String email
+  String phone
+}
+
+PrivateProfile -up-* Profile
+
+class Introduction {
+  Int profileId
+  String abstract
+  string vision
+}
+
+Introduction -right-* Profile
+
+class Interest {
+  Enum interestType
+  Int interestId
+}
+
+Introduction *-down- Interest
+
+class Favorite {
+  Int id
+  String name
+}
+
+Interest *-down- Favorite
+
+class Career {
+  Int id
+  Int profileId
+  Int organizationId
+  String position
+  Date from
+  Date to
+}
+
+Profile "1" *-down- "n" Career
+
+class Organization {
+  Int id
+  Enum organizationType
+  Int businessfieldId
+  String name
+}
+
+Career *-down- Organization
+
+class Businessfield {
+  Int id
+  String name
+}
+
+Organization "n" -left-* "1" Businessfield
+Interest *-down- Businessfield
+
+@enduml
